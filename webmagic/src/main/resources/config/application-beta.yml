@@ -2,20 +2,25 @@ tieba:
   #支持多个逗号分隔开
   tiebaName: 李毅
   tiebaTopUrl: http://tieba.baidu.com/f/like/furank?ie=utf-8&kw=
-  tiebaContentUrl: http://tieba.baidu.com/f?ie=utf-8&kw=
+  tiebaContentUrl: http://tieba.baidu.com/f?ie=utf-8&tab=good&kw=
   tiebaContentPageUrl: http://tieba.baidu.com/p/
+  tiebaContentSeeLzOnly: '&see_lz=1'
+  tiebaContentSeeFirstPage: false
+  #要抓取的单个帖子 支持多个逗号分隔开
+  tiebaContentPageId: 5347282437,5155866136
   #1*50=50个帖子 每次只抓第一页帖子
   tiebaContentPageEndNum: 1
   tiebaImageUrl: https://imgsa.baidu.com/forum/w%3D580/
   tiebaContentIdTopic: tieba_content_id_topic
+  tiebaContentIdSinglePageTopic: tieba_content_id_single_page_topic
   tiebaContentNoImageIdTopic: tieba_content_noimage_id_topic
   #我们可以通过java -DexecuteDeleteTiebaImageTask="fase" 修改启动参数
   executeDeleteTiebaImageTask: true
 spring:
   redis:
-    database: 2
-    host: 47.94.111.150
-    password: gaoguangjin
+    database: 1
+    host: localhost
+    password: 
     pool.max-active: 50000
     pool.max-idle: 500
     pool.max-wait: 1000
@@ -27,9 +32,9 @@ spring:
       #url: jdbc:mysql://110.173.28.188:3306/master?useUnicode=true&characterEncoding=utf-8
       #username: slave
       #password: mobile
-      url: jdbc:mysql://123.56.118.135:3306/master?useUnicode=true&characterEncoding=utf-8
-      username: mobile
-      password: mobile
+      url: jdbc:mysql://localhost:3306/master?useUnicode=true&characterEncoding=utf-8
+      username: root
+      password: 123
       # 使用druid数据源
       type: com.alibaba.druid.pool.DruidDataSource
       driver-class-name: com.mysql.jdbc.Driver

@@ -36,6 +36,8 @@ public class TieBaImageIdMessageListener implements MessageListener {
 	
 	public static final String TIEBA_CONTENT_IMAGE_KEY = "tieba_content_image_";
 	
+	public static final String TIEBA_CONTENT_SINGLE_PAGE_IMAGE_KEY = "tieba_content_single_page_image_";
+	
 	public static final String TIEBA_CONTENT_UPDATE_TIME_KEY = "tieba_content_update_time_";
 	
 	@Autowired
@@ -51,6 +53,7 @@ public class TieBaImageIdMessageListener implements MessageListener {
 	 * @param message
 	 * @param bytes
      */
+	@Override
 	public void onMessage(Message message, byte[] bytes) {
 		String jsonStr = WebmagicService.getString(message.getBody());
 		List<ContentBean> pageList = JSONObject.parseArray(jsonStr, ContentBean.class);
@@ -82,6 +85,7 @@ public class TieBaImageIdMessageListener implements MessageListener {
 							//key=tieba_content_image_李毅
 							redisConnection.sAdd(imageKey,WebmagicService.getByte(contentBean.getId()));
 							//key=tieba_content_image_4813146001
+							//tieba_content_update_time_李毅
 							redisConnection.zAdd(timeKey, Double.parseDouble(contentBean.getDate()), WebmagicService.getByte(contentBean.getId()));
 						}
 					}
@@ -109,12 +113,12 @@ public class TieBaImageIdMessageListener implements MessageListener {
 				// 不包含图片的帖子Id
 				Set<String> noImageSet = CollectionUtils.convertSetByteToSetString(redisConnection.sMembers(noImageKey));
 				for(ContentBean content : list) {
-					try {
-						//标题放入elasticsearch里面搜索
-						elasticSearch.getBeanBlockingDeque().put(content);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
+//					try {
+//						//标题放入elasticsearch里面搜索
+//						elasticSearch.getBeanBlockingDeque().put(content);
+//					} catch (InterruptedException e) {
+//						e.printStackTrace();
+//					}
 					String id = content.getId();
 					if (!noImageSet.contains(id)) {
 						imagePageList.add(content);

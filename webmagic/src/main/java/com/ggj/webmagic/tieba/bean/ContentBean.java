@@ -11,7 +11,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ContentBean {
-    //贴吧id
+    //贴子id
     private String id;
     //贴吧名称
     private String name;
@@ -28,6 +28,12 @@ public class ContentBean {
         this.name=tiebaName;
         this.authorName=authorName;
         this.title=title;
+    }
+    public ContentBean(String pageId, String tiebaName,String authorName,String title) {
+    	this.id=pageId;
+    	this.name=tiebaName;
+    	this.authorName=authorName;
+    	this.title=title;
     }
     public ContentBean(String pageId,  String tiebaName) {
         this.id=pageId;

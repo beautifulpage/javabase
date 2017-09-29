@@ -8,14 +8,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.ggj.webmagic.WebmagicService;
 import com.ggj.webmagic.autoconfiguration.TieBaConfiguration;
 import com.ggj.webmagic.autoconfiguration.TieBaImageIdMessageListener;
-import com.ggj.webmagic.tieba.bean.ContentBean;
 import com.ggj.webmagic.util.QiNiuUtil;
 import com.ggj.webmagic.util.SpiderExtend;
 
@@ -33,15 +31,12 @@ import us.codecraft.webmagic.processor.PageProcessor;
  */
 @Service
 @Slf4j
-public class ContentImageProcessor implements PageProcessor {
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+public class ContentSinglePageImageProcessor implements PageProcessor {
     @Autowired
     private TieBaConfiguration tieBaConfiguration;
     @Autowired
     private QiNiuUtil qiNiuUtil;
     private static String url;
-    private static String tiebaName;
     private volatile static boolean isAddTarget = false;
     private static List<String> pageNumberList;
     private static ConcurrentHashMap<byte[], byte[]> map = new ConcurrentHashMap<byte[], byte[]>();
@@ -50,8 +45,9 @@ public class ContentImageProcessor implements PageProcessor {
 
     @Override
     public void process(Page page) {
-        List<String> imageUrlList = page.getHtml().$(".BDE_Image", "src").all();//getImgUrlList(page);
-        String pageId = page.getUrl().toString().split("\\?")[0].replace(tieBaConfiguration.getTiebaContentPageUrl(),"");
+        List<String> imageUrlList = page.getHtml().$(".BDE_Image", "src").all();
+        String pageUrl = page.getUrl().toString();
+        String pageId = pageUrl.split("\\?")[0].replace(tieBaConfiguration.getTiebaContentPageUrl(),"");
         List<String> list = new ArrayList<>();
         for (String imageUrl : imageUrlList) {
             if (imageUrl.startsWith(tieBaConfiguration.getTiebaImageUrl())) {
@@ -61,10 +57,10 @@ public class ContentImageProcessor implements PageProcessor {
             }
         }
         if (list.size() > 0) {
-            map.put(WebmagicService.getByte(TieBaImageIdMessageListener.TIEBA_CONTENT_IMAGE_KEY+pageId), WebmagicService.getByte(JSONObject.toJSONString(list)));
+        	map.put(WebmagicService.getByte(TieBaImageIdMessageListener.TIEBA_CONTENT_SINGLE_PAGE_IMAGE_KEY+pageId), WebmagicService.getByte(JSONObject.toJSONString(list)));
         }else{
         	if(StringUtils.isNotEmpty(pageId)){
-        		redisTemplate.convertAndSend(tieBaConfiguration.getTiebaContentNoImageIdTopic(), JSONObject.toJSONString(new ContentBean(pageId,tiebaName)));
+        		log.info("**********pageUrl:{}空图片！",pageUrl);
         	}
         }
         if (!isAddTarget) {
@@ -73,7 +69,6 @@ public class ContentImageProcessor implements PageProcessor {
                 sb.append(url).append(id);
                 page.addTargetRequests(Arrays.asList(sb.toString()));
             }
-            
             isAddTarget = true;
         }
     }
@@ -97,11 +92,10 @@ public class ContentImageProcessor implements PageProcessor {
         return site;
     }
 
-    public ConcurrentHashMap<byte[], byte[]> start(List<String> pageNumberList, String tiebaName) {
+    public ConcurrentHashMap<byte[], byte[]> start() {
         isAddTarget=false;
         map.clear();
-        this.tiebaName=tiebaName;
-        this.pageNumberList = pageNumberList;
+        this.pageNumberList = Arrays.asList(tieBaConfiguration.getTiebaContentPageId().split(","));
         this.url = tieBaConfiguration.getTiebaContentPageUrl();
         SpiderExtend.create(this).addUrl(url).addPipeline(new ConsolePipeline())
                 // 开启5个线程抓取

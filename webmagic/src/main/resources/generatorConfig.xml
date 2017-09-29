@@ -5,7 +5,7 @@
 <!--    <properties resource="jdbc.properties"/>-->
 
     <!--指定特定数据库的jdbc驱动jar包的位置 -->
-    <classPathEntry location="D:\java software\maven\mavenRepoistory\tianyi\repository\mysql\mysql-connector-java\5.1.38\mysql-connector-java-5.1.38.jar"/>
+    <classPathEntry location="/Users/abel/.m2/repository/mysql/mysql-connector-java/5.1.39/mysql-connector-java-5.1.39.jar"/>
 
     <!-- 一个数据库一个context -->
     <context id="infoGuardian" targetRuntime="MyBatis3">
@@ -17,8 +17,8 @@
 
         <!-- jdbc连接 -->
         <jdbcConnection driverClass="com.mysql.jdbc.Driver"
-                        connectionURL="jdbc:mysql://123.56.118.135:3306/master" userId="mobile"
-                        password="mobile" />
+                        connectionURL="jdbc:mysql://localhost:3306/master" userId="root"
+                        password="123" />
 
         <!-- 类型转换 -->
         <javaTypeResolver>

@@ -30,21 +30,24 @@ public class ScheduleTask {
 	public static volatile boolean execute;
 	
 	// 一个小时更新一次，执行top
-	// @Scheduled(initialDelay = 0, fixedRate = 1000*60*60*6)
-	// @Scheduled(cron="0 */60 * * * ?")
+	 //@Scheduled(initialDelay = 0, fixedRate = 1000*60*60*6)
+	//@Scheduled(initialDelay = 0, fixedRate = 1000*60*1)
+	//@Scheduled(cron="0 */1 * * * ?")
 	public void scheduleUpdateTieBa() {
 		try {
+			log.info("******");
 			webmagicService.addTieBaTop();
 		} catch (Exception e) {
 			log.error("贴吧同步TOP失败！" + e.getLocalizedMessage());
 		}
 	}
 	
-	@Scheduled(initialDelay = 1000 * 60, fixedDelay = 1000 * 60 * 1)
+	//@Scheduled(initialDelay = 1000 * 60, fixedDelay = 1000 * 60 * 1)
+	//@Scheduled(initialDelay = 1000 * 6, fixedRate = 1000*60*5)
 	public void scheduleTieBaImage() {
 		try {
 			// 删除历史图片时候不进行定时任务
-			if (execute)
+			//if (execute)
 				webmagicService.addTieBaImage();
 		} catch (Exception e) {
 			log.error("贴吧同步Image失败！" + e.getLocalizedMessage());
@@ -54,10 +57,21 @@ public class ScheduleTask {
 		}
 	}
 	
+	
+	@Scheduled(initialDelay = 1000 * 6, fixedRate = 1000*60*5)
+	public void scheduleTieBaCatImage() {
+		try {
+			webmagicService.addTieBaCatImage();
+		} catch (Exception e) {
+			log.error("贴吧同步Image失败！" + e.getLocalizedMessage());
+		}
+	}
+	
 	/**
 	 * 将贴吧信息放到elasticsearch
 	 */
-	@Scheduled(initialDelay = 1000 * 60, fixedDelay = 1000 * 60 * 1)
+	//@Scheduled(initialDelay = 1000 * 60, fixedDelay = 1000 * 60 * 1)
+	//@Scheduled(initialDelay = 0, fixedRate = 1000*60*1)
 	public void scheduleSearchIndex() {
 		try {
 			elasticSearch.addTieBaContentIndex();
@@ -71,7 +85,7 @@ public class ScheduleTask {
 	 * 两种方式删除
 	 */
 	// @Scheduled(cron = "0 0 */3 * * ?")
-	@Scheduled(initialDelay = 0, fixedDelay = 1000 * 60 * 60 * 12 * 3)
+	//@Scheduled(initialDelay = 0, fixedDelay = 1000 * 60 * 60 * 12 * 3)
 	public void deleteTieBaImage() {
 		try {
 			if (tieBaConfiguration.getExecuteDeleteTiebaImageTask().equals("true")) {

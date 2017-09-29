@@ -1,9 +1,6 @@
 package com.ggj.webmagic.autoconfiguration;
 
-import com.ggj.webmagic.util.QiNiuUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureAfter;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
@@ -12,8 +9,6 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
-
-import static javafx.scene.input.KeyCode.T;
 
 /**
  * @author:gaoguangjin
@@ -24,9 +19,11 @@ public class BeanConfiguration {
     @Autowired
     TieBaConfiguration tieBaConfiguration;
     @Autowired
-    TieBaImageIdMessageListener TieBaImageIdMessageListener;
+    TieBaImageIdMessageListener tieBaImageIdMessageListener;
     @Autowired
     TieBaNoImageIdMessageListener tieBaNoImageIdMessageListener;
+    @Autowired
+    TieBaSinglePageImageIdMessageListener tieBaSinglePageImageIdMessageListener;
     /**
      * spring-data-redis 使用jedsi作为实现类
      * @param jedisConnectionFactory
@@ -43,8 +40,9 @@ public class BeanConfiguration {
     public RedisMessageListenerContainer redisMessageListenerContainer(JedisConnectionFactory jedisConnectionFactory){
         RedisMessageListenerContainer  redisMessageListenerContainer=new RedisMessageListenerContainer();
         redisMessageListenerContainer.setConnectionFactory(jedisConnectionFactory);
-        redisMessageListenerContainer.addMessageListener(TieBaImageIdMessageListener,new ChannelTopic(tieBaConfiguration.getTiebaContentIdTopic()));
+        redisMessageListenerContainer.addMessageListener(tieBaImageIdMessageListener,new ChannelTopic(tieBaConfiguration.getTiebaContentIdTopic()));
         redisMessageListenerContainer.addMessageListener(tieBaNoImageIdMessageListener,new ChannelTopic(tieBaConfiguration.getTiebaContentNoImageIdTopic()));
+        redisMessageListenerContainer.addMessageListener(tieBaSinglePageImageIdMessageListener,new ChannelTopic(tieBaConfiguration.getTiebaContentIdSinglePageTopic()));
         return redisMessageListenerContainer;
     }
 

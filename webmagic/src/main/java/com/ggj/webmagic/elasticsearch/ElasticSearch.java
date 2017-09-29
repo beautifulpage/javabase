@@ -1,6 +1,7 @@
 package com.ggj.webmagic.elasticsearch;
 
 import com.alibaba.fastjson.JSONObject;
+import com.ggj.webmagic.WebmagicService;
 import com.ggj.webmagic.tieba.bean.ContentBean;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
 import org.elasticsearch.common.xcontent.XContentFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -42,6 +44,8 @@ public class ElasticSearch implements InitializingBean{
     public  BlockingQueue<ContentBean> beanBlockingDeque=new ArrayBlockingQueue<ContentBean>(10000);
     @Getter
     private TransportClient transportClient=null;
+    @Autowired
+	private WebmagicService webmagicService;
     public  static  final String INDEX_NAME="masterdb";
     public static final String TIEABA_CONTENT_TYPE="tieba_content";
     //对title字段进行zk分词
@@ -51,7 +55,8 @@ public class ElasticSearch implements InitializingBean{
         List<ContentBean> list=new ArrayList<>();
         beanBlockingDeque.drainTo(list);
         for (ContentBean contentBean : list) {
-            transportClient.prepareIndex(INDEX_NAME,TIEABA_CONTENT_TYPE).setId(contentBean.getId()).setSource(JSONObject.toJSONString(contentBean)).execute().actionGet();
+        	//webmagicService.addTiebaContent(TIEABA_CONTENT_TYPE,contentBean.getId(),JSONObject.toJSONString(contentBean));
+            //transportClient.prepareIndex(INDEX_NAME,TIEABA_CONTENT_TYPE).setId(contentBean.getId()).setSource(JSONObject.toJSONString(contentBean)).execute().actionGet();
         }
     }
 

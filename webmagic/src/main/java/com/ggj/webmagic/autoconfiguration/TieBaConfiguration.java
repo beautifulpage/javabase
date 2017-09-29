@@ -25,10 +25,17 @@ public class TieBaConfiguration {
     private String tiebaImageUrl;
     //贴吧帖子id  redis pub/sub topic名称
     private String tiebaContentIdTopic;
+    private String tiebaContentIdSinglePageTopic;
     //贴吧帖子 不存在图片的提诶子id redis pub/sub topic名称
     private String tiebaContentNoImageIdTopic;
     //同步帖子最后一页
     private String tiebaContentPageEndNum;
     //是否执删除帖子图片的定时任务，默认false
     private String executeDeleteTiebaImageTask;
+    //只看楼主
+    private String tiebaContentSeeLzOnly;
+    //是否只看第一页
+    private boolean tiebaContentSeeFirstPage;
+    //要抓取的单个帖子
+    private String tiebaContentPageId;
 }

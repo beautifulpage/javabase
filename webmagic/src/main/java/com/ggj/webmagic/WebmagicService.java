@@ -2,7 +2,13 @@ package com.ggj.webmagic;
 
 
 import java.io.UnsupportedEncodingException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -25,6 +31,7 @@ import com.ggj.webmagic.autoconfiguration.TieBaImageIdMessageListener;
 import com.ggj.webmagic.base.ConfigConsts;
 import com.ggj.webmagic.elasticsearch.ElasticSearch;
 import com.ggj.webmagic.tieba.ContentIdProcessor;
+import com.ggj.webmagic.tieba.ContentIdSinglePageProcessor;
 import com.ggj.webmagic.tieba.TopProcessor;
 import com.ggj.webmagic.tieba.bean.ContentBean;
 import com.ggj.webmagic.tieba.bean.TopBean;
@@ -56,6 +63,8 @@ public class WebmagicService {
     private TopProcessor topProcessor;
     @Autowired
     private ContentIdProcessor contentIdProcessor;
+    @Autowired
+    private ContentIdSinglePageProcessor contentIdSinglePageProcessor;
     @Autowired
     private QiNiuUtil qiNiuUtil;
 
@@ -166,6 +175,9 @@ public class WebmagicService {
             String name = getString(bytes);
             contentIdProcessor.start(name);
         }
+    }
+    public void addTieBaCatImage() {
+    	contentIdSinglePageProcessor.start();
     }
 
     private Set<byte[]> getCacheTieBaName() {
