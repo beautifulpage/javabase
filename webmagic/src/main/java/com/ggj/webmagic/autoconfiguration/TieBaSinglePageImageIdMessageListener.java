@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class TieBaSinglePageImageIdMessageListener implements MessageListener {
 	
+	public static final String TIEBA_CONTENT_SINGLE_PAGE_IMAGE_INDEX = "tieba_content_single_page_image_index";
 	public static final String TIEBA_CONTENT_SINGLE_PAGE_IMAGE_KEY = "tieba_content_single_page_image_";
 	
 	@Autowired
@@ -56,7 +57,7 @@ public class TieBaSinglePageImageIdMessageListener implements MessageListener {
 				mapContent.put(contentBean.getId(), contentBean);
 			}
 			
-			//log.info("{}:待同步图片pageID数量：{}" ,mapContent.toString(), pageList.size());
+			log.info("{}:待同步图片page数量：{}" ,mapContent.toString(), mapContent.size());
 			ConcurrentHashMap<byte[], byte[]> map = contentSinglePageImageProcessor.start();
 			redisTemplate.executePipelined(new RedisCallback<Object>() {
 				@Override
@@ -68,11 +69,16 @@ public class TieBaSinglePageImageIdMessageListener implements MessageListener {
 						String pageId = null;
 						ContentBean cb = null;
 						String redisKey = null;
+						String redisIndexValue = null;
 						for (byte[] b : map.keySet()) {
 							pageId = getString(b).replace(TIEBA_CONTENT_SINGLE_PAGE_IMAGE_KEY, "");
 							cb = mapContent.get(pageId);
 							redisKey = TIEBA_CONTENT_SINGLE_PAGE_IMAGE_KEY + cb.getAuthorName() + "_" + pageId;
 							redisConnection.sAdd(getByte(redisKey),map.get(b));
+							
+							//key=TIEBA_CONTENT_SINGLE_PAGE_IMAGE_INDEX
+							redisIndexValue = cb.getAuthorName() + "_" + pageId + "|" + cb.getTitle();
+							redisConnection.sAdd(getByte(TIEBA_CONTENT_SINGLE_PAGE_IMAGE_INDEX),WebmagicService.getByte(redisIndexValue));
 						}
 					}
 					return null;

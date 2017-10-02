@@ -1,9 +1,14 @@
 package com.ggj.webmagic.autoconfiguration;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import org.assertj.core.util.Strings;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * 贴吧Top爬虫配置项
@@ -37,5 +42,14 @@ public class TieBaConfiguration {
     //是否只看第一页
     private boolean tiebaContentSeeFirstPage;
     //要抓取的单个帖子
-    private String tiebaContentPageId;
+    private String tiebaContentId;
+    //是否抓取所有的贴吧分组
+    private boolean fetchContentPageGroup;
+    
+    private List<String> tiebaContentPageId;
+
+	public static List<String> filtPageContentId(List<String> ids){
+		return ids.stream().filter(c -> !Strings.isNullOrEmpty(c)).distinct().collect(Collectors.toList());
+	}
+    
 }

@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.http.client.fluent.Request;
 import org.springframework.beans.factory.InitializingBean;
@@ -19,7 +17,6 @@ import com.qiniu.http.Response;
 import com.qiniu.storage.BucketManager;
 import com.qiniu.storage.Configuration;
 import com.qiniu.storage.UploadManager;
-import com.qiniu.storage.model.BatchStatus;
 import com.qiniu.storage.model.FileInfo;
 import com.qiniu.util.Auth;
 
@@ -60,6 +57,10 @@ public class QiNiuUtil implements InitializingBean {
     public String getUpToken(String key) {
         return auth.uploadToken(bucketName, key);
     }
+    // 覆盖上传
+    public String uploadToken() {
+    	return auth.uploadToken(bucketName);
+    }
 
     /**
      * 根据url 下载文件再上传七牛
@@ -88,7 +89,7 @@ public class QiNiuUtil implements InitializingBean {
             FileInfo info = bucketManager.stat(bucketName, key);
             return true;
         } catch (QiniuException e) {
-            //log.info("图片不存在："+key);
+            log.info("图片不存在："+key);
             return false;
         }
     }
@@ -102,56 +103,57 @@ public class QiNiuUtil implements InitializingBean {
             if (res.isOK())
                 return domain + key;
         } catch (QiniuException e) {
-            log.error("七牛上传 response：" + e.getLocalizedMessage());
+            log.error("七牛上传 response异常：" + e.getLocalizedMessage());
+            log.error("七牛上传 response异常：" + e);
         }
         return null;
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Configuration cfg = new Configuration(Zone.zone0());
+        Configuration cfg = new Configuration(ZoneEnum.SC.getZone());
         cfg.connectTimeout=5000;
-        cfg.responseTimeout=5000;
+        //cfg.responseTimeout=5000;
         cfg.writeTimeout=2000;
         auth = Auth.create(accessKey, secretKey);
         uploadManager = new UploadManager(cfg);
         // 实例化一个BucketManager对象
         bucketManager = new BucketManager(auth, cfg);
 
-        new Thread() {
-            public void run() {
-                deleteBlockingDequeImage();
-            }
-        }.start();
+//        new Thread() {
+//            public void run() {
+//                deleteBlockingDequeImage();
+//            }
+//        }.start();
     }
 
-    private void deleteBlockingDequeImage() {
-        ExecutorService pool = Executors.newFixedThreadPool(20);
-        while (true) {
-            try {
-                List<String> list = deleteBlockingDeque.take();
-                pool.execute(deleteByThread(list));
-                List<List<String>> listAll = new ArrayList<>();
-                deleteBlockingDeque.drainTo(listAll, 999);
-                if (listAll != null) {
-                    for (List<String> listImage : listAll) {
-                        pool.execute(deleteByThread(listImage));
-                    }
-                }
-            } catch (InterruptedException e) {
-                log.error("循环删除BlockingDequeImage失败：{}", e.getLocalizedMessage());
-            }
-        }
-    }
+//    private void deleteBlockingDequeImage() {
+//        ExecutorService pool = Executors.newFixedThreadPool(20);
+//        while (true) {
+//            try {
+//                List<String> list = deleteBlockingDeque.take();
+//                pool.execute(deleteByThread(list));
+//                List<List<String>> listAll = new ArrayList<>();
+//                deleteBlockingDeque.drainTo(listAll, 999);
+//                if (listAll != null) {
+//                    for (List<String> listImage : listAll) {
+//                        pool.execute(deleteByThread(listImage));
+//                    }
+//                }
+//            } catch (InterruptedException e) {
+//                log.error("循环删除BlockingDequeImage失败：{}", e.getLocalizedMessage());
+//            }
+//        }
+//    }
 
-    public Runnable deleteByThread(final List<String> listImage) {
-        return new Thread() {
-            @Override
-            public void run() {
-                deleteByList(listImage);
-            }
-        };
-    }
+//    public Runnable deleteByThread(final List<String> listImage) {
+//        return new Thread() {
+//            @Override
+//            public void run() {
+//                deleteByList(listImage);
+//            }
+//        };
+//    }
 
     /**
      * 删除图片
@@ -160,30 +162,30 @@ public class QiNiuUtil implements InitializingBean {
      *
      * @param list
      */
-    public void deleteByList(List<String> list) {
-        try {
-            if (list == null) return;
-            log.info("待删除图片大小：{}", list.size());
-            String[] keyList = new String[list.size()];
-            for (int i = 0; i < list.size(); i++) {
-                keyList[i] = list.get(i).replace(domain, "");
-            }
-            BucketManager.Batch batchOperations = new BucketManager.Batch();
-            batchOperations.delete(bucketName, keyList);
-            Response response = bucketManager.batch(batchOperations);
-            BatchStatus[] batchStatusList = response.jsonToObject(BatchStatus[].class);
-            /*for (int k = 0; k < keyList.length; k++) {
-                BatchStatus status = batchStatusList[k];
-                if (status.code == 200) {
-                   // log.info("delete success");
-                } else {
-                    log.error("删除失败", status.toString());
-                }
-            }*/
-        } catch (QiniuException e) {
-            log.error("七牛上传 response：" + e.getLocalizedMessage());
-        }
-    }
+//    public void deleteByList(List<String> list) {
+//        try {
+//            if (list == null) return;
+//            log.info("待删除图片大小：{}", list.size());
+//            String[] keyList = new String[list.size()];
+//            for (int i = 0; i < list.size(); i++) {
+//                keyList[i] = list.get(i).replace(domain, "");
+//            }
+//            BucketManager.Batch batchOperations = new BucketManager.Batch();
+//            batchOperations.delete(bucketName, keyList);
+//            Response response = bucketManager.batch(batchOperations);
+//            BatchStatus[] batchStatusList = response.jsonToObject(BatchStatus[].class);
+//            /*for (int k = 0; k < keyList.length; k++) {
+//                BatchStatus status = batchStatusList[k];
+//                if (status.code == 200) {
+//                   // log.info("delete success");
+//                } else {
+//                    log.error("删除失败", status.toString());
+//                }
+//            }*/
+//        } catch (QiniuException e) {
+//            log.error("七牛上传 response：" + e.getLocalizedMessage());
+//        }
+//    }
 
     /**
      * 列举指定前缀的文件
@@ -218,4 +220,65 @@ public class QiNiuUtil implements InitializingBean {
            getDeleteBlockingDeque().put(list);
         }
     }
+    
+}
+
+enum ZoneEnum{
+	EC("华东",new String[]{"zone-e"}, Zone.zone0(), "7xk8ky.com1.z0.glb.clouddn.com/"),
+	NC("华北",new String[]{"zone-n"}, Zone.zone1(), "on5ldvklg.bkt.clouddn.com/"),
+	SC("华南",new String[]{"zone-s"}, Zone.zone2(), ""),
+	NA("北美",new String[]{"zone-ns"}, Zone.zoneNa0(), ""),
+	;
+	private String area;
+	private String[] bucket;
+	private Zone zone;
+	private String domain;
+	
+	private ZoneEnum(String area, String[] bucket, Zone zone, String domain) {
+		this.area = area;
+		this.bucket = bucket;
+		this.zone = zone;
+		this.domain = domain;
+	}
+
+	public static ZoneEnum getByZone(Zone zone) {
+		for (ZoneEnum temp : ZoneEnum.values()) {
+			if (temp.getZone() == zone) {
+				return temp;
+			}
+		}
+		return null;
+	}
+	
+	public String getArea() {
+		return area;
+	}
+
+	public void setArea(String area) {
+		this.area = area;
+	}
+
+	public String[] getBucket() {
+		return bucket;
+	}
+
+	public void setBucket(String[] bucket) {
+		this.bucket = bucket;
+	}
+
+	public Zone getZone() {
+		return zone;
+	}
+
+	public void setZone(Zone zone) {
+		this.zone = zone;
+	}
+
+	public String getDomain() {
+		return domain;
+	}
+
+	public void setDomain(String domain) {
+		this.domain = domain;
+	}
 }

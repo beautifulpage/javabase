@@ -1,26 +1,26 @@
 package com.ggj.webmagic.tieba;
 
-import com.alibaba.fastjson.JSONObject;
-import com.ggj.webmagic.autoconfiguration.TieBaConfiguration;
-import com.ggj.webmagic.tieba.bean.ContentBean;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-import us.codecraft.webmagic.Page;
-import us.codecraft.webmagic.Site;
-import us.codecraft.webmagic.Spider;
-import us.codecraft.webmagic.pipeline.ConsolePipeline;
-import us.codecraft.webmagic.processor.PageProcessor;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import static javafx.scene.input.KeyCode.H;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateFormatUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import com.alibaba.fastjson.JSONObject;
+import com.ggj.webmagic.autoconfiguration.TieBaConfiguration;
+import com.ggj.webmagic.tieba.bean.ContentBean;
+
+import lombok.extern.slf4j.Slf4j;
+import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.pipeline.ConsolePipeline;
+import us.codecraft.webmagic.processor.PageProcessor;
 
 
 /**
@@ -102,7 +102,7 @@ public class ContentIdProcessor implements PageProcessor {
        endNum=Integer.parseInt(tieBaConfiguration.getTiebaContentPageEndNum());
         Spider.create(this).addUrl(tiebaUrl).addPipeline(new ConsolePipeline())
                 // 开启5个线程抓取
-                .thread(2)
+                .thread(1)
                 // 启动爬虫
                 .run();
        if(pageNumberList.size()>0) {

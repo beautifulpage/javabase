@@ -3,7 +3,9 @@ package com.ggj.webmagic.tieba;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +16,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.ggj.webmagic.WebmagicService;
 import com.ggj.webmagic.autoconfiguration.TieBaConfiguration;
 import com.ggj.webmagic.autoconfiguration.TieBaImageIdMessageListener;
+import com.ggj.webmagic.tieba.bean.ContentBean;
 import com.ggj.webmagic.util.QiNiuUtil;
 import com.ggj.webmagic.util.SpiderExtend;
 
@@ -38,7 +41,7 @@ public class ContentSinglePageImageProcessor implements PageProcessor {
     private QiNiuUtil qiNiuUtil;
     private static String url;
     private volatile static boolean isAddTarget = false;
-    private static List<String> pageNumberList;
+    private static Set<String> pageNumberList = new HashSet<>();
     private static ConcurrentHashMap<byte[], byte[]> map = new ConcurrentHashMap<byte[], byte[]>();
     // 部分一：抓取网站的相关配置，包括编码、抓取间隔、重试次数等
     private Site site = Site.me().setRetryTimes(1).setSleepTime(1000);
@@ -47,12 +50,14 @@ public class ContentSinglePageImageProcessor implements PageProcessor {
     public void process(Page page) {
         List<String> imageUrlList = page.getHtml().$(".BDE_Image", "src").all();
         String pageUrl = page.getUrl().toString();
+        ContentBean cb = ContentBean.parseHtml(page);
         String pageId = pageUrl.split("\\?")[0].replace(tieBaConfiguration.getTiebaContentPageUrl(),"");
+        cb.setId(pageId);
         List<String> list = new ArrayList<>();
         for (String imageUrl : imageUrlList) {
             if (imageUrl.startsWith(tieBaConfiguration.getTiebaImageUrl())) {
                 //上传七牛
-            	//imageUrl=convertImageUrl(imageUrl);
+            	imageUrl = convertImageUrl(imageUrl,cb);
                 if (null!=imageUrl)list.add(imageUrl);
             }
         }
@@ -78,9 +83,11 @@ public class ContentSinglePageImageProcessor implements PageProcessor {
      * 百度图片禁止图片外链，所以需要自己上传到七牛
      * @param imageUrl
      */
-    private String convertImageUrl(String imageUrl) {
+    private String convertImageUrl(String imageUrl,ContentBean cb) {
         try {
-            return qiNiuUtil.upload(imageUrl.replace(tieBaConfiguration.getTiebaImageUrl(),""),imageUrl);
+        	//return qiNiuUtil.upload(imageUrl.replace(tieBaConfiguration.getTiebaImageUrl(),""),imageUrl);
+        	String qiniuUrl = cb.getAuthorName() + "|" + cb.getId() + "|" + imageUrl.replace(tieBaConfiguration.getTiebaImageUrl(),"").split("/")[1];
+            return qiNiuUtil.upload(qiniuUrl,imageUrl);
         } catch (IOException e) {
            log.error("百度图片转换失败："+e.getLocalizedMessage());
         }
@@ -95,7 +102,15 @@ public class ContentSinglePageImageProcessor implements PageProcessor {
     public ConcurrentHashMap<byte[], byte[]> start() {
         isAddTarget=false;
         map.clear();
-        this.pageNumberList = Arrays.asList(tieBaConfiguration.getTiebaContentPageId().split(","));
+        pageNumberList.clear();
+        if (!tieBaConfiguration.isFetchContentPageGroup()) {
+        	this.pageNumberList.addAll(Arrays.asList(tieBaConfiguration.getTiebaContentId().split(",")));
+		} else {
+			List<String> tiebaContentPageIds = TieBaConfiguration.filtPageContentId(tieBaConfiguration.getTiebaContentPageId());
+			for (String idGroup : tiebaContentPageIds) {
+				 this.pageNumberList.addAll(Arrays.asList(idGroup.split(",")));
+			}
+		}
         this.url = tieBaConfiguration.getTiebaContentPageUrl();
         SpiderExtend.create(this).addUrl(url).addPipeline(new ConsolePipeline())
                 // 开启5个线程抓取
