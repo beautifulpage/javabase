@@ -6,5 +6,9 @@ import java.util.List;
 
 public interface TieBaImageMapper {
     int insertBatch(List<TieBaImage> list);
-    Integer selectCountByPageId(String pageId);
+    int insert(TieBaImage tieBaImage);
+    Integer selectCountById(String id);
+    List<String> pkSelectByParam(TieBaImage tieBaImage);
+    List<TieBaImage> selectByIds(List<String> ids);
+	void update(TieBaImage tieBaImage);
 }

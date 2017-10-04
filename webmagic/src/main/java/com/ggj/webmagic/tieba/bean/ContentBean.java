@@ -50,6 +50,23 @@ public class ContentBean {
     public ContentBean() {
     }
     
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ContentBean contentBean = (ContentBean) o;
+        if (!id.equals(contentBean.id)) return false;
+        return title.equals(contentBean.title);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id.hashCode();
+        result = 31 * result + title.hashCode();
+        return result;
+    }
+    
     public static ContentBean parseHtml(Page page){
     	Html pageHtml = page.getHtml();
 		Pattern pattern = Pattern.compile("<[^>]+>");

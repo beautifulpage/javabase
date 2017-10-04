@@ -83,10 +83,12 @@ public class ContentIdSinglePageProcessor implements PageProcessor {
 			}
 		}
 		this.tiebaContentUrl = tieBaConfiguration.getTiebaContentPageUrl();
-		SpiderExtend.create(this).addUrl(tiebaContentUrl).addPipeline(new ConsolePipeline()).thread(1).run();
+		SpiderExtend.create(this).addUrl(tiebaContentUrl).addPipeline(new ConsolePipeline()).thread(2).run();
 		if (pageNumberList.size() > 0) {
+			List<ContentBean> contentBeanList = new ArrayList<>();
+			pageNumberList.stream().forEach(p -> { if (!contentBeanList.contains(p)) { contentBeanList.add(p);}});
 			redisTemplate.convertAndSend(tieBaConfiguration.getTiebaContentIdSinglePageTopic(),
-					JSONObject.toJSONString(pageNumberList));
+					JSONObject.toJSONString(contentBeanList));
 		}
 	}
 }

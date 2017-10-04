@@ -1,16 +1,54 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.ggj.webmagic.tieba.dao.TieBaImageMapper" >
-  <select id="selectCountByPageId" resultType="java.lang.Integer" parameterType="java.lang.String" >
-    select count(page_id)
-    from tieba_image
-    where page_id = #{pageId};
+  <select id="selectCountById" resultType="java.lang.Integer" parameterType="java.lang.String" >
+    select count(*) from tieba_image where id = #{id};
   </select>
   <insert id="insertBatch" parameterType="java.util.List">
-    insert into tieba_image ( page_id, image_url,tieba_name)
+    insert into tieba_image (id, page_id, auther_name, image_url,tieba_image_url,created_at,updated_at)
     values
     <foreach collection="list" item="item" index="index" separator="," >
-      (#{item.pageId},#{item.imageUrl},#{item.tiebaName})
+      (#{item.id},#{item.pageId},#{item.autherName},#{item.imageUrl},#{item.tiebaImageUrl},#{item.createdAt},#{item.updatedAt})
     </foreach>
   </insert>
+  <insert id="insert" parameterType="com.ggj.webmagic.tieba.bean.TieBaImage">
+    insert into tieba_image (id, page_id, auther_name, image_url,tieba_image_url,created_at,updated_at)
+    values
+    (#{id},#{pageId},#{autherName},#{imageUrl},#{tiebaImageUrl},#{createdAt},#{updatedAt})
+  </insert>
+  <update id="update" parameterType="com.ggj.webmagic.tieba.bean.TieBaImage">
+	    update tieba_image set 
+	    <![CDATA[
+	    page_id = #{pageId},
+		auther_name = #{autherName},
+		image_url = #{imageUrl},
+		tieba_image_url = #{tiebaImageUrl},
+		updated_at = #{updatedAt}
+	    ]]>
+	    <where>
+	    	<if test="id != null">
+				id = #{id}
+	    	</if>	
+		</where>	    
+	</update>
+  <select id="pkSelectByParam" resultType="string" parameterType="com.ggj.webmagic.tieba.bean.TieBaImage">
+		select id from tieba_image
+		<where>
+			<if test="id != null">id = #{id}</if>  
+			<if test="pageId != null">page_id = #{pageId}</if>  
+			<if test="autherName != null">auther_name = #{autherName}</if>  
+			<if test="imageUrl != null">image_url = #{imageUrl}</if>  
+			<if test="tiebaImageUrl != null">tieba_image_url = #{tiebaImageUrl}</if>  
+		</where>
+	</select>
+  <select id="selectByIds" resultType="com.ggj.webmagic.tieba.bean.TieBaImage" >
+	  	select id, page_id pageId, auther_name autherName,image_url imageUrl,tieba_image_url tiebaImageUrl,created_at createdAt,updated_at updatedAt from tieba_image
+	  	<where>
+		  		id IN
+		  		<foreach item="item" index="index" collection="list" open="(" separator="," close=")">
+		  			#{item}
+		  		</foreach>
+	  	</where>
+	</select>
+	
 </mapper>

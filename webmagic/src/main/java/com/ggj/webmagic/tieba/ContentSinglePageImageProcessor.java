@@ -3,6 +3,7 @@ package com.ggj.webmagic.tieba;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -17,6 +18,8 @@ import com.ggj.webmagic.WebmagicService;
 import com.ggj.webmagic.autoconfiguration.TieBaConfiguration;
 import com.ggj.webmagic.autoconfiguration.TieBaImageIdMessageListener;
 import com.ggj.webmagic.tieba.bean.ContentBean;
+import com.ggj.webmagic.tieba.bean.TieBaImage;
+import com.ggj.webmagic.tieba.service.TieBaImageService;
 import com.ggj.webmagic.util.QiNiuUtil;
 import com.ggj.webmagic.util.SpiderExtend;
 
@@ -39,6 +42,8 @@ public class ContentSinglePageImageProcessor implements PageProcessor {
     private TieBaConfiguration tieBaConfiguration;
     @Autowired
     private QiNiuUtil qiNiuUtil;
+    @Autowired
+    private TieBaImageService tieBaImageService;
     private static String url;
     private volatile static boolean isAddTarget = false;
     private static Set<String> pageNumberList = new HashSet<>();
@@ -86,8 +91,18 @@ public class ContentSinglePageImageProcessor implements PageProcessor {
     private String convertImageUrl(String imageUrl,ContentBean cb) {
         try {
         	//return qiNiuUtil.upload(imageUrl.replace(tieBaConfiguration.getTiebaImageUrl(),""),imageUrl);
-        	String qiniuUrl = cb.getAuthorName() + "|" + cb.getId() + "|" + imageUrl.replace(tieBaConfiguration.getTiebaImageUrl(),"").split("/")[1];
-            return qiNiuUtil.upload(qiniuUrl,imageUrl);
+        	String qiniuUrlTml = cb.getAuthorName() + "|" + cb.getId() + "|" + imageUrl.replace(tieBaConfiguration.getTiebaImageUrl(),"").split("/")[1];
+        	String retQNUrl = qiNiuUtil.upload(qiniuUrlTml,imageUrl);
+        	TieBaImage tieBaImage = new TieBaImage();
+        	tieBaImage.setId(imageUrl.replace(tieBaConfiguration.getTiebaImageUrl(),"").split("/")[1].split("\\.")[0]);
+        	tieBaImage.setAutherName(cb.getAuthorName());
+        	tieBaImage.setPageId(cb.getId());
+        	tieBaImage.setImageUrl(retQNUrl);
+        	tieBaImage.setTiebaImageUrl(imageUrl);
+        	tieBaImage.setCreatedAt(new Date());
+        	tieBaImage.setUpdatedAt(new Date());
+        	tieBaImageService.saveTiebaImg(tieBaImage);
+        	return retQNUrl;
         } catch (IOException e) {
            log.error("百度图片转换失败："+e.getLocalizedMessage());
         }
@@ -114,7 +129,7 @@ public class ContentSinglePageImageProcessor implements PageProcessor {
         this.url = tieBaConfiguration.getTiebaContentPageUrl();
         SpiderExtend.create(this).addUrl(url).addPipeline(new ConsolePipeline())
                 // 开启5个线程抓取
-                .thread(1)
+                .thread(5)
                 // 启动爬虫
                 .run();
         return  map;
