@@ -58,12 +58,31 @@ public class ScheduleTask {
 	}
 	
 	
-	@Scheduled(initialDelay = 1000 * 6, fixedRate = 1000*60*5)
+	//@Scheduled(initialDelay = 1000 * 6, fixedRate = 1000*60*5)
 	public void scheduleTieBaCatImage() {
 		try {
 			webmagicService.addTieBaCatImage();
 		} catch (Exception e) {
 			log.error("贴吧同步Image失败！" + e.getLocalizedMessage());
+		}
+	}
+	
+	//@Scheduled(initialDelay = 1000 * 6, fixedRate = 1000*60*5)
+	public void scheduleTieBaSyncInfo() {
+		try {
+			webmagicService.syncTieBaInfo();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("贴吧同步信息失败！" + e);
+		}
+	}
+	@Scheduled(initialDelay = 1000 * 6, fixedRate = 1000*60*5)
+	public void scheduleUploadLocalDoc() {
+		try {
+			webmagicService.uploadLocalDoc();
+		} catch (Exception e) {
+			e.printStackTrace();
+			log.error("上传本地文件失败！" + e);
 		}
 	}
 	

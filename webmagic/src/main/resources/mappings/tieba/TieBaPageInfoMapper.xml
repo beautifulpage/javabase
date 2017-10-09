@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ggj.webmagic.tieba.dao.TieBaPageInfoMapper" >
+  <select id="selectCountById" resultType="java.lang.Integer" parameterType="java.lang.String" >
+    select count(*) from tieba_page_info where page_id = #{pageId};
+  </select>
+  <insert id="insert" parameterType="com.ggj.webmagic.tieba.bean.TieBaPageInfo">
+    insert into tieba_page_info (page_id, auther_name, title,created_at,updated_at)
+    values
+    (#{pageId},#{autherName},#{title},#{createdAt},#{updatedAt})
+  </insert>
+  <update id="update" parameterType="com.ggj.webmagic.tieba.bean.TieBaPageInfo">
+	    update tieba_page_info set 
+	    <![CDATA[
+		auther_name = #{autherName},
+		title = #{title},
+		updated_at = #{updatedAt}
+	    ]]>
+	    <where>
+	    	<if test="pageId != null">
+				page_id = #{pageId}
+	    	</if>	
+		</where>	    
+	</update>
+  <select id="selectAll" resultType="com.ggj.webmagic.tieba.bean.TieBaPageInfo" >
+	  	select page_id pageId, auther_name autherName,title,created_at createdAt,updated_at updatedAt from tieba_page_info
+	</select>
+	
+</mapper>

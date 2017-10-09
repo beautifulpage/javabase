@@ -28,6 +28,8 @@ public class TieBaConfiguration {
     private String tiebaContentPageUrl;
     //贴吧帖子内容页面
     private String tiebaImageUrl;
+    //贴吧图册帖子内容页面
+    private String tiebaWallImageUrl;
     //贴吧帖子id  redis pub/sub topic名称
     private String tiebaContentIdTopic;
     private String tiebaContentIdSinglePageTopic;
