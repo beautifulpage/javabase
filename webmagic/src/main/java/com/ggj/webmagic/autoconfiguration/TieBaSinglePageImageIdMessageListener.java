@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 
 import com.alibaba.fastjson.JSONObject;
 import com.ggj.webmagic.WebmagicService;
+import com.ggj.webmagic.tieba.ContentImageWallProcessor;
 import com.ggj.webmagic.tieba.ContentSinglePageImageProcessor;
 import com.ggj.webmagic.tieba.bean.ContentBean;
 import com.google.common.collect.Maps;
@@ -40,6 +41,8 @@ public class TieBaSinglePageImageIdMessageListener implements MessageListener {
 	@Autowired
 	private ContentSinglePageImageProcessor contentSinglePageImageProcessor;
 	@Autowired
+	private ContentImageWallProcessor contentImageWallProcessor;
+	@Autowired
 	private RedisTemplate<String, String> redisTemplate;
 
 	/**
@@ -58,7 +61,8 @@ public class TieBaSinglePageImageIdMessageListener implements MessageListener {
 			}
 			
 			log.info("{}:待同步图片page数量：{}" ,mapContent.toString(), mapContent.size());
-			ConcurrentHashMap<byte[], byte[]> map = contentSinglePageImageProcessor.start();
+			///ConcurrentHashMap<byte[], byte[]> map = contentSinglePageImageProcessor.start();
+			ConcurrentHashMap<byte[], byte[]> map = contentImageWallProcessor.start();
 			redisTemplate.executePipelined(new RedisCallback<Object>() {
 				@Override
 				public Object doInRedis(RedisConnection redisConnection) throws DataAccessException {

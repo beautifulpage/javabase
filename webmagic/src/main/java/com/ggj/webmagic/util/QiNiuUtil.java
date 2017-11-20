@@ -111,7 +111,7 @@ public class QiNiuUtil implements InitializingBean {
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        Configuration cfg = new Configuration(ZoneEnum.SC.getZone());
+        Configuration cfg = new Configuration(ZoneEnum.NC.getZone());
         cfg.connectTimeout=5000;
         //cfg.responseTimeout=5000;
         cfg.writeTimeout=2000;
@@ -224,9 +224,9 @@ public class QiNiuUtil implements InitializingBean {
 }
 
 enum ZoneEnum{
-	EC("华东",new String[]{"zone-e"}, Zone.zone0(), "7xk8ky.com1.z0.glb.clouddn.com/"),
+	EC("华东",new String[]{"zone-e"}, Zone.zone0(), "on5lr2o0d.bkt.clouddn.com/"),
 	NC("华北",new String[]{"zone-n"}, Zone.zone1(), "on5ldvklg.bkt.clouddn.com/"),
-	SC("华南",new String[]{"zone-s"}, Zone.zone2(), ""),
+	SC("华南",new String[]{"zone-s"}, Zone.zone2(), "on5l8yqj6.bkt.clouddn.com/"),
 	NA("北美",new String[]{"zone-ns"}, Zone.zoneNa0(), ""),
 	;
 	private String area;

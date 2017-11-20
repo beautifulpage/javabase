@@ -6,11 +6,27 @@ tieba:
   tiebaContentPageUrl: http://tieba.baidu.com/p/
   tiebaContentSeeLzOnly: '&see_lz=1'
   tiebaContentSeeFirstPage: false
+  fetchContentPageGroup: false
   #要抓取的单个帖子 支持多个逗号分隔开
-  tiebaContentPageId: 5347282437,5155866136
+  # 2071053527,2211919471,3009264167,3289876188,2901545156,2901526808,2901547827,2896414267,2859386029
+  #2211919471,2901526808
+  tiebaContentId: 2211919471
+  # csy 1606233246,1578164976,1717855436,4143442215,2977295313,2970310958,2662552845,2254399717
+  tiebaContentPageId[0]: 1606233246,1578164976,1717855436,4143442215,2977295313,2970310958,2662552845,2254399717
+  # milumilk 2235769926,2126957279,2521353502,2391694081
+  tiebaContentPageId[1]: 2235769926,2126957279,2521353502,2391694081
+  # 林晓茶 2543413597,2096720580,2524827838,2200659184,2125540245
+  tiebaContentPageId[2]: 2543413597,2096720580,2524827838,2200659184,2125540245
+  # 久忘袅i 4064957036
+  tiebaContentPageId[3]: 4064957036
+  # 520jaenan 2071053527,2211919471,3009264167,3289876188,2901545156,2901526808,2901547827,2896414267,2859386029
+  tiebaContentPageId[4]: 2071053527,2211919471,3009264167,3289876188,2901545156,2901526808,2901547827,2896414267,2859386029
+  # QUEENA
+  tiebaContentPageId[5]: 3192081585
   #1*50=50个帖子 每次只抓第一页帖子
   tiebaContentPageEndNum: 1
   tiebaImageUrl: https://imgsa.baidu.com/forum/w%3D580/
+  tiebaWallImageUrl: https://imgsa.baidu.com/forum/w%3D223/
   tiebaContentIdTopic: tieba_content_id_topic
   tiebaContentIdSinglePageTopic: tieba_content_id_single_page_topic
   tiebaContentNoImageIdTopic: tieba_content_noimage_id_topic
@@ -54,8 +70,8 @@ spring:
       maxOpenPreparedStatements: 20
 
 qiniu:
-  accessKey: aL-Y877Xpt0daNLqkule0TwNTsAFWR0aoYHUTRaA
-  secretKey: ngCEeu-AABo_d5GdGJ076bUNSBsntAyisPPeB9ed
+  accessKey: 1h6xQSpbHhw5nMXYZaFnd1p9HR_K9mt2w6v862-5
+  secretKey: DI2wcgZaavBQAEE7p-5Ot58ZoXQ5hj1VzgsWDrvb
   #ggj2010 ggjqn
-  bucketName: ggjqn
-  domain: http://o8c5x5dg6.bkt.clouddn.com/
+  bucketName: zone-s
+  domain: http://on5l8yqj6.bkt.clouddn.com/
